@@ -164,6 +164,29 @@ def run_server(server: FastMCP) -> None:
     )
 
     try:
-        server.run(transport=config.transport)
+        if config.transport in ("streamable-http", "sse"):
+            _run_http(server, config)
+        else:
+            server.run(transport=config.transport)
     except SystemExit:
         pass
+
+
+def _run_http(server: FastMCP, config: ServerConfig) -> None:
+    """Kör HTTP-transport med CORS-middleware så webbläsarklienter kan ansluta."""
+    import uvicorn
+    from starlette.middleware.cors import CORSMiddleware
+
+    app = (
+        server.streamable_http_app()
+        if config.transport == "streamable-http"
+        else server.sse_app()
+    )
+    wrapped = CORSMiddleware(
+        app,
+        allow_origins=config.cors_origins,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["Mcp-Session-Id"],
+    )
+    uvicorn.run(wrapped, host=config.host, port=config.port, log_level=config.log_level.lower())

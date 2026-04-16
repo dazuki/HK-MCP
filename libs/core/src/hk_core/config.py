@@ -20,3 +20,4 @@ class ServerConfig(BaseSettings):
     port: int = 8000
     transport: Literal["stdio", "sse", "streamable-http"] = "stdio"
     allowed_hosts: list[str] = []
+    cors_origins: list[str] = ["*"]
