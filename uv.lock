@@ -5,7 +5,6 @@ requires-python = ">=3.12"
 [manifest]
 members = [
     "hk-core",
-    "hk-example",
     "skolverket",
 ]
 
@@ -220,17 +219,6 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.0" },
     { name = "pydantic-settings", specifier = ">=2.0" },
 ]
-
-[[package]]
-name = "hk-example"
-version = "0.1.0"
-source = { editable = "servers/example" }
-dependencies = [
-    { name = "hk-core" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "hk-core", editable = "libs/core" }]
 
 [[package]]
 name = "httpcore"
