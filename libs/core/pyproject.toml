@@ -1,0 +1,17 @@
+[project]
+name = "hk-core"
+version = "0.1.0"
+description = "Delat kärnbibliotek för HK MCP-servrar"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.12.0",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hk_core"]

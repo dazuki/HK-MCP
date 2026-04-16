@@ -1,0 +1,12 @@
+[tool.uv]
+# Herrljunga Kommuns MCP-servrar - virtuell arbetsyta (inget rotpaket)
+default-groups = ["dev"]
+
+[tool.uv.workspace]
+members = ["libs/*", "servers/*"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11",
+    "pytest>=8.0",
+]
