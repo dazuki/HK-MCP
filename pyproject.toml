@@ -4,9 +4,18 @@ default-groups = ["dev"]
 
 [tool.uv.workspace]
 members = ["libs/*", "servers/*"]
+exclude = ["templates/*"]
 
 [dependency-groups]
 dev = [
     "ruff>=0.11",
     "pytest>=8.0",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+extraPaths = [
+    "libs/core/src",
+    "servers/skolverket/src",
 ]
