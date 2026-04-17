@@ -269,11 +269,16 @@ def _run_http(server: FastMCP, config: ServerConfig) -> None:
     import uvicorn
     from starlette.middleware.cors import CORSMiddleware
 
+    from hk_core.docs import build_docs_routes
+
     app = (
         server.streamable_http_app()
         if config.transport == "streamable-http"
         else server.sse_app()
     )
+    for route in build_docs_routes(server):
+        app.router.routes.append(route)
+
     wrapped = CORSMiddleware(
         app,
         allow_origins=config.cors_origins,
