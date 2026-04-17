@@ -80,6 +80,11 @@ def _parse_args() -> dict[str, Any]:
         nargs="+",
         help="Tillåtna Origin-headers (t.ex. 'https://mcp.klient.se' eller '*' för alla)",
     )
+    parser.add_argument(
+        "--auth-tokens",
+        nargs="+",
+        help="Giltiga Bearer-tokens för Authorization-header. Flera tillåts för rotation.",
+    )
     args = parser.parse_args()
     return {k: v for k, v in vars(args).items() if v is not None}
 
@@ -139,6 +144,14 @@ def _validate_config(config: ServerConfig) -> None:
             "Wildcard '*' är satt i allowed_hosts/allowed_origins. "
             "DNS rebinding-skyddet är helt avstängt - OK för stdio eller utveckling, "
             "rekommenderas inte för produktion med HTTP."
+        )
+
+    if is_public_bind and not config.auth_tokens:
+        logger.warning(
+            "HTTP-transport bunden till %s utan auth_tokens. "
+            "Servern är öppen för alla som når porten. "
+            "Sätt auth_tokens i mcp-config.toml (eller HK_AUTH_TOKENS) för Bearer-auth.",
+            config.host,
         )
 
 
@@ -238,6 +251,8 @@ def run_server(server: FastMCP) -> None:
         config.allowed_hosts = cli_args["allowed_hosts"]
     if "allowed_origins" in cli_args:
         config.allowed_origins = cli_args["allowed_origins"]
+    if "auth_tokens" in cli_args:
+        config.auth_tokens = cli_args["auth_tokens"]
     if "allowed_hosts" in cli_args or "allowed_origins" in cli_args:
         server.settings.transport_security = _build_transport_security(config)
 
@@ -269,6 +284,7 @@ def _run_http(server: FastMCP, config: ServerConfig) -> None:
     import uvicorn
     from starlette.middleware.cors import CORSMiddleware
 
+    from hk_core.auth import bearer_token_middleware
     from hk_core.docs import build_docs_routes
 
     app = (
@@ -279,8 +295,17 @@ def _run_http(server: FastMCP, config: ServerConfig) -> None:
     for route in build_docs_routes(server):
         app.router.routes.append(route)
 
+    inner = app
+    if config.auth_tokens:
+        inner = bearer_token_middleware(
+            inner,
+            config.auth_tokens,
+            realm=server.name,
+            exempt_paths=["/", "/docs", "/docs.json", "/static/"],
+        )
+
     wrapped = CORSMiddleware(
-        app,
+        inner,
         allow_origins=config.cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],

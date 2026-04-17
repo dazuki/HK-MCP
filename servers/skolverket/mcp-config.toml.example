@@ -1,4 +1,4 @@
-# Server-specifik konfiguration. Kopiera till `mcp-config.toml` i samma
+# Skolverket-specifik konfiguration. Kopiera till `mcp-config.toml` i samma
 # katalog och anpassa. Värden här överskriver ../../settings.toml i
 # monorepo-roten. HK_*-miljövariabler och CLI-argument överskriver i sin tur.
 
@@ -6,11 +6,11 @@
 transport = "streamable-http"
 
 # Port för HTTP-transporter
-port = 8000
+port = 3070
 
 # Tillåtna Host-headers (MCP blockerar andra mot DNS rebinding).
 # Lägg till proxy-domän och/eller LAN-IP här. "*" = alla.
-allowed_hosts = ["example.mcp.local", "192.168.0.1"]
+allowed_hosts = ["skolverket.mcp.local", "192.168.0.1"]
 
 # Tillåtna Origin-headers (för webbaserade MCP-klienter).
 # Sätt klientens domän här. "*" = alla.
@@ -24,5 +24,4 @@ access_log = false
 
 # Bearer-tokens för Authorization-header. Tom lista = ingen auth (öppen server).
 # Flera tokens tillåts för rotation utan downtime.
-# Rekommenderas starkt vid publik exponering. Kan även sättas via HK_AUTH_TOKENS.
 auth_tokens = []

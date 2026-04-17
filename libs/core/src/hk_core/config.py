@@ -67,6 +67,7 @@ class ServerConfig(BaseSettings):
     cors_origins: list[str] = ["*"]
     forwarded_allow_ips: str = "127.0.0.1"
     access_log: bool = False
+    auth_tokens: list[str] = []
 
     @classmethod
     def load(cls, start: Path | str | None = None) -> "ServerConfig":

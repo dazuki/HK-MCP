@@ -9,3 +9,4 @@ transport = "stdio"
 cors_origins = ["*"]
 forwarded_allow_ips = "127.0.0.1"
 access_log = false
+auth_tokens = []
