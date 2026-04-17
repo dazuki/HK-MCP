@@ -49,6 +49,7 @@ mcp = create_server(
         "skolor, utbildningar, huvudmän, utbildningsanordnare och statistik."
     ),
     lifespan=lifespan,
+    package_file=__file__,
 )
 
 # Registrera alla verktyg

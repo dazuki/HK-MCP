@@ -1,0 +1,11 @@
+# Globala standardvärden för alla MCP-servrar.
+# Överskrivs per server via `servers/<namn>/mcp-config.toml`
+# och sedan av miljövariabler (HK_*) och CLI-argument.
+
+log_level = "INFO"
+environment = "development"
+host = "0.0.0.0"
+transport = "stdio"
+cors_origins = ["*"]
+forwarded_allow_ips = "127.0.0.1"
+access_log = false

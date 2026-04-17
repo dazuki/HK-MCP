@@ -16,6 +16,10 @@ venv/
 .env.*
 !.env.example
 
+# Lokala konfigurationsfiler
+settings.toml
+mcp-config.toml
+
 # IDE
 .vscode/
 .idea/
