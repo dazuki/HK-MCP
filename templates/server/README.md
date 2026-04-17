@@ -42,6 +42,26 @@ extraPaths = [
 `package_file=__file__` måste skickas till `create_server()` för att
 `mcp-config.toml` och `settings.toml` ska upptäckas. Mallen gör redan det.
 
+## Autentisering
+
+Vid HTTP-transport kan du kräva en Bearer-token genom att sätta
+`auth_tokens` i `mcp-config.toml`:
+
+```toml
+auth_tokens = ["lång-slumpmässig-sträng"]
+```
+
+Flera tokens tillåts samtidigt för rotation utan downtime. Klienter
+skickar `Authorization: Bearer <token>`. Kan även sättas via
+`HK_AUTH_TOKENS` eller `--auth-tokens`. Tom lista = öppen server.
+
+**Rekommenderas starkt vid publik exponering.** Om servern binds till
+annat än localhost utan `auth_tokens` loggas en varning vid start.
+
+Docs-endpoints (`/`, `/docs`, `/docs.json`, `/static/*`) kräver
+aldrig auth - de är avsedda för snabb browserinspektion. `/mcp` och
+övriga routes skyddas när `auth_tokens` är satt.
+
 ## Automatisk dokumentation
 
 Vid HTTP-transport (`streamable-http` eller `sse`) exponerar `hk-core`
