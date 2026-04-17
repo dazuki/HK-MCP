@@ -5,6 +5,7 @@ from hk_core import create_server, run_server
 mcp = create_server(
     name="HK Exempel",
     instructions="Du är en hjälpsam assistent för Herrljunga Kommun.",
+    package_file=__file__,
 )
 
 

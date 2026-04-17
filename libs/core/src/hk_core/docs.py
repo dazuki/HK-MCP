@@ -11,8 +11,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-_ARGS_LINE_RE = re.compile(r"^(\s+)(\w+): (.+)$", re.MULTILINE)
-
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
@@ -20,6 +18,8 @@ from starlette.routing import BaseRoute, Mount, Route
 from starlette.staticfiles import StaticFiles
 
 STATIC_DIR = Path(__file__).parent / "static"
+_ARGS_LINE_RE = re.compile(r"^(\s+)(\w+): (.+)$", re.MULTILINE)
+_ARGS_HEADER_RE = re.compile(r"^[ \t]*Args:[ \t]*\n", re.MULTILINE)
 
 
 def collect_docs(server: FastMCP) -> dict[str, Any]:
@@ -139,8 +139,9 @@ def _render_instructions(instructions: str) -> str:
 
 
 def _format_tool_description(desc: str) -> str:
-    """Escapa beskrivning och fetmarkera argumentnamn i Args:-blocket."""
-    escaped = html.escape(desc)
+    """Strippa 'Args:'-raden, escapa och fetmarkera argumentnamn."""
+    without_header = _ARGS_HEADER_RE.sub("", desc)
+    escaped = html.escape(without_header)
     bolded = _ARGS_LINE_RE.sub(r"\1<strong>\2:</strong> \3", escaped)
     return bolded.replace("\n", "<br>")
 
