@@ -15,10 +15,15 @@ cp -r templates/server servers/<namn>
 cd servers/<namn>
 # Redigera pyproject.toml, src/<modul>/server.py
 # Byt katalognamn: mv src/hk_example src/<modul>
-cp mcp-config.toml.example mcp-config.toml  # anpassa vid behov
+# Radera README.md - den tillhör mallen, inte servern
+rm README.md
+cp ../../templates/server/mcp-config.toml.example mcp-config.toml  # anpassa
 uv sync
 uv run <namn>
 ```
+
+`mcp-config.toml.example` behålls endast i `templates/server/` -
+servrarna committar bara sin egen (gitignorerade) `mcp-config.toml`.
 
 Workspace-roten plockar upp nya `servers/*` automatiskt vid nästa `uv sync`.
 
@@ -34,8 +39,8 @@ extraPaths = [
 
 ## Konfiguration
 
-- `mcp-config.toml.example` - mall för server-specifik konfiguration (committas)
-- `mcp-config.toml` - din lokala konfiguration (gitignorerad)
+- `templates/server/mcp-config.toml.example` - delad mall (committas)
+- `mcp-config.toml` - din lokala konfiguration i `servers/<namn>/` (gitignorerad)
 - Globala defaults ligger i `settings.toml` i monorepo-roten
 - Prioritet: CLI > `HK_*`-env > `mcp-config.toml` > `settings.toml` > defaults
 

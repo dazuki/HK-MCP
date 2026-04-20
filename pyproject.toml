@@ -19,4 +19,5 @@ extraPaths = [
     "libs/core/src",
     "servers/skolverket/src",
     "servers/kolada/src",
+    "servers/time/src",
 ]

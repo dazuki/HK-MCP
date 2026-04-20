@@ -52,7 +52,6 @@ mcp = create_server(
     package_file=__file__,
 )
 
-# Registrera alla verktyg
 syllabus_tools.register(mcp)
 pe_tools.register(mcp)
 registry_tools.register(mcp)
