@@ -1,0 +1,7 @@
+name: mcp-start
+root: ~/python-projects/HK-MCP/
+
+windows:
+  - kolada: uv run --package kolada kolada
+  - skolverket: uv run --package skolverket skolverket
+  - time: uv run --package time time
