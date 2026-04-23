@@ -122,21 +122,28 @@ ghcr.io/<ägare>/hk-mcp-time:latest
 ghcr.io/<ägare>/hk-mcp-scb:latest
 ```
 
-Driftmiljöer som inte ska bygga lokalt (t.ex. Windows Server) kan då kopiera
-`docker-compose.yml`, byta ut `build:`-block mot `image:` och köra
-`docker compose pull && docker compose up -d`:
+Driftmiljöer som inte ska bygga lokalt (t.ex. Windows Server) använder
+[docker-compose.prod.yml](docker-compose.prod.yml) som drar färdiga images
+från GHCR. Kräver bara två filer på värden - inget `git clone`:
 
-```yaml
-services:
-  skolverket:
-    image: ghcr.io/<ägare>/hk-mcp-skolverket:latest
-    # ta bort build:-blocket
-    ...
+```bash
+# På driftservern
+curl -O https://raw.githubusercontent.com/<ägare>/hk-mcp/main/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/<ägare>/hk-mcp/main/.env.example
+mv .env.example .env                   # anpassa GHCR_OWNER, tokens, hosts
+
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
+
+Se [.env.example](.env.example) för alla konfigurationsvärden. Pinna
+`IMAGE_TAG` till en git-tag (t.ex. `v0.1.0`) i produktion för förutsägbar
+drift istället för `latest`.
 
 **Första gången** paketen publiceras är de privata. Gå till repots
 `Packages`-flik på GitHub och ändra synligheten till `Public` om de ska
-kunna dras utan autentisering.
+kunna dras utan autentisering (annars behövs `docker login ghcr.io` på värden
+med en personal access token som har `read:packages`-scope).
 
 ## Använda servrarna från en MCP-klient
 

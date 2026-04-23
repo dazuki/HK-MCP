@@ -19,11 +19,19 @@ x-common-env: &common-env
   HK_ALLOWED_ORIGINS: '["*"]'
   # IP för reverse proxy som skickar X-Forwarded-*-headers. Justera efter
   # proxyns nät (t.ex. docker bridge eller fysisk hosts IP).
-  HK_FORWARDED_ALLOW_IPS: "172.16.0.0/12"
-  HK_ACCESS_LOG: "false"
+  HK_FORWARDED_ALLOW_IPS: '172.16.0.0/12'
+  HK_ACCESS_LOG: 'false'
 
 x-common-healthcheck: &common-healthcheck
-  test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/docs.json',timeout=3).status==200 else 1)"]
+  test:
+    [
+      'CMD',
+      'python',
+      '-c',
+      "import urllib.request,sys; sys.exit(0 if
+      urllib.request.urlopen('http://127.0.0.1:8000/docs.json',timeout=3).status==200
+      else 1)",
+    ]
   interval: 30s
   timeout: 5s
   retries: 3
@@ -40,7 +48,7 @@ services:
     container_name: hk-mcp-skolverket
     restart: unless-stopped
     ports:
-      - "3070:8000"
+      - '3070:8000'
     environment:
       <<: *common-env
       # Lägg till din reverse proxy-domän här vid publik exponering,
@@ -59,7 +67,7 @@ services:
     container_name: hk-mcp-kolada
     restart: unless-stopped
     ports:
-      - "3071:8000"
+      - '3071:8000'
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
@@ -76,7 +84,7 @@ services:
     container_name: hk-mcp-time
     restart: unless-stopped
     ports:
-      - "3072:8000"
+      - '3072:8000'
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
@@ -93,7 +101,7 @@ services:
     container_name: hk-mcp-scb
     restart: unless-stopped
     ports:
-      - "3073:8000"
+      - '3073:8000'
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'

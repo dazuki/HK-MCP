@@ -1,0 +1,72 @@
+# Produktion - drar färdiga images från GHCR istället för att bygga lokalt.
+# Images publiceras automatiskt av .github/workflows/docker-publish.yml
+# vid push till main och vid git-taggar v*.*.*.
+#
+# Uppsättning på en ny server (ingen git-klon behövs, bara denna fil + .env):
+#   1. Kopiera .env.example till .env och fyll i GHCR_OWNER, auth-tokens
+#      och HK_ALLOWED_HOSTS (din reverse proxys domäner).
+#   2. docker compose -f docker-compose.prod.yml pull
+#   3. docker compose -f docker-compose.prod.yml up -d
+#
+# Uppdatera till ny version:
+#   docker compose -f docker-compose.prod.yml pull && \
+#     docker compose -f docker-compose.prod.yml up -d
+#
+# Se README.md (Docker-sektionen) för reverse proxy, TLS och auth-detaljer.
+
+x-env: &env
+  HK_ENVIRONMENT: production
+  HK_ALLOWED_HOSTS: ${HK_ALLOWED_HOSTS:-["localhost"]}
+  HK_FORWARDED_ALLOW_IPS: ${HK_FORWARDED_ALLOW_IPS:-172.16.0.0/12}
+
+x-healthcheck: &healthcheck
+  test:
+    [
+      'CMD',
+      'python',
+      '-c',
+      "import urllib.request,sys; sys.exit(0 if
+      urllib.request.urlopen('http://127.0.0.1:8000/docs.json',timeout=3).status==200
+      else 1)",
+    ]
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 5s
+
+services:
+  skolverket:
+    image: ghcr.io/${GHCR_OWNER}/hk-mcp-skolverket:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports: ['3070:8000']
+    environment:
+      <<: *env
+      HK_AUTH_TOKENS: ${SKOLVERKET_AUTH_TOKENS}
+    healthcheck: *healthcheck
+
+  kolada:
+    image: ghcr.io/${GHCR_OWNER}/hk-mcp-kolada:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports: ['3071:8000']
+    environment:
+      <<: *env
+      HK_AUTH_TOKENS: ${KOLADA_AUTH_TOKENS}
+    healthcheck: *healthcheck
+
+  time:
+    image: ghcr.io/${GHCR_OWNER}/hk-mcp-time:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports: ['3072:8000']
+    environment:
+      <<: *env
+      HK_AUTH_TOKENS: ${TIME_AUTH_TOKENS}
+    healthcheck: *healthcheck
+
+  scb:
+    image: ghcr.io/${GHCR_OWNER}/hk-mcp-scb:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    ports: ['3073:8000']
+    environment:
+      <<: *env
+      HK_AUTH_TOKENS: ${SCB_AUTH_TOKENS}
+    healthcheck: *healthcheck
