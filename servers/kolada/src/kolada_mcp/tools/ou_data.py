@@ -26,9 +26,13 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta OU-data med minst två av kpi_id, ou_id och year.
 
+        Returnerar `{values: [{values: [{gender, value, ...}], kpi, period,
+        ou}], count}`. Obs: fältet heter `ou` (inte `municipality`) på
+        enhetsnivå. Endast KPI:er där `has_ou_data=true` ger träffar.
+
         Args:
             kpi_id: Kommaseparerade KPI-ID:n.
-            ou_id: Kommaseparerade enhets-ID:n.
+            ou_id: Kommaseparerade enhets-ID:n (börjar med 'V').
             year: Kommaseparerade årtal.
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
@@ -56,9 +60,12 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta OU-data för en kombination av KPI, enhet och år.
 
+        Det mest exakta verktyget för enhetsnivå - använd när både KPI,
+        OU och år är kända. Returnerar en post per kombination.
+
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
-            ou_id: Ett eller flera enhets-ID:n (kommaseparerat).
+            ou_id: Ett eller flera OU-ID:n (kommaseparerat, börjar med 'V').
             year: Ett eller flera år (kommaseparerat).
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
@@ -86,10 +93,14 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta OU-data för en KPI och ett år, valfritt filtrerat per kommun.
 
+        Ger en post per enhet som har värdet - kan bli stort nationellt.
+        Ange `municipality_id` när frågan gäller en specifik kommun.
+
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
             year: Ett eller flera år (kommaseparerat).
-            municipality_id: Valfritt kommun-ID för att begränsa enheterna.
+            municipality_id: Kommun-ID för att begränsa enheterna
+                (rekommenderat, fyrsiffrig SCB-kod).
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
             per_page: Antal poster per sida.
@@ -115,9 +126,11 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta tidsserie för en KPI på en enhet (alla år).
 
+        Returnerar en post per år. Sortera själv på `period`-fältet.
+
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
-            ou_id: Ett eller flera enhets-ID:n (kommaseparerat).
+            ou_id: Ett eller flera OU-ID:n (kommaseparerat, börjar med 'V').
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
             per_page: Antal poster per sida.
@@ -142,8 +155,11 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta alla KPI-värden för en enhet ett visst år.
 
+        Användbart för att inventera vilka KPI:er som rapporterats för en
+        specifik enhet.
+
         Args:
-            ou_id: Ett eller flera enhets-ID:n (kommaseparerat).
+            ou_id: Ett eller flera OU-ID:n (kommaseparerat, börjar med 'V').
             year: Ett eller flera år (kommaseparerat).
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
@@ -169,8 +185,12 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta OU-data för alla enheter i en kommun ett visst år.
 
+        Returnerar en post per (OU, KPI)-kombination. Bra när du vill se
+        vilka KPI:er som finns på enhetsnivå för en kommun innan du frågar
+        om ett specifikt OU.
+
         Args:
-            municipality: Kommun-ID.
+            municipality: Kommun-ID (fyrsiffrig SCB-kod).
             year: Ett eller flera år (kommaseparerat).
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.

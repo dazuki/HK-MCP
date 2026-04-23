@@ -27,11 +27,16 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta data med minst två av kpi_id, municipality_id och year.
 
+        Returnerar `{values: [{values: [{gender, count, status, value,
+        isdeleted}], kpi, period, municipality}], count}`. Yttre `values` =
+        en post per KPI/kommun/år. Inre `values` = en post per kön ('T'
+        total, 'M' män, 'K' kvinnor). Läs `value`-fältet för siffran.
+
         Args:
-            kpi_id: Kommaseparerade KPI-ID:n.
+            kpi_id: Kommaseparerade KPI-ID:n (t.ex. 'N01951,N11800').
             municipality_id: Kommaseparerade kommun-/region-ID:n.
             year: Kommaseparerade årtal (YYYY).
-            from_date: Returnera bara poster uppdaterade efter detta datum (YYYY-MM-DD).
+            from_date: Returnera bara poster uppdaterade efter datum (YYYY-MM-DD).
             region_type: Filter på region-typ.
             page: Sidnummer.
             per_page: Antal poster per sida.
@@ -58,6 +63,10 @@ def register(mcp: FastMCP) -> None:
         per_page: int = 5000,
     ) -> dict[str, Any]:
         """Hämta data för en KPI och ett år (alla kommuner).
+
+        Ger en post per kommun som rapporterat värdet - potentiellt ~290
+        poster per KPI och år. Använd bara när användaren uttryckligen vill
+        jämföra alla kommuner; annars använd `get_data_by_kpi_municipality_year`.
 
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
@@ -89,10 +98,14 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta data för en kombination av KPI, kommun och år.
 
+        Returnerar `{values: [{values: [{gender, value, ...}], kpi, period,
+        municipality}], count}`. Det vanligaste verktyget för att svara på
+        konkreta frågor om en kommun.
+
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
             municipality_id: Ett eller flera kommun-/region-ID:n (kommaseparerat).
-            year: Ett eller flera år (kommaseparerat).
+            year: Ett eller flera år (kommaseparerat, t.ex. '2022,2023').
             from_date: YYYY-MM-DD för senaste uppdateringsfilter.
             page: Sidnummer.
             per_page: Antal poster per sida.
@@ -117,6 +130,9 @@ def register(mcp: FastMCP) -> None:
         per_page: int = 5000,
     ) -> dict[str, Any]:
         """Hämta alla KPI-värden för en kommun och år.
+
+        Ger stora svar (hundratals KPI:er per kommun/år). Använd
+        `from_date` eller paginera med `per_page` för att begränsa.
 
         Args:
             municipality_id: Ett eller flera kommun-/region-ID:n (kommaseparerat).
@@ -144,6 +160,9 @@ def register(mcp: FastMCP) -> None:
         per_page: int = 5000,
     ) -> dict[str, Any]:
         """Hämta tidsserie för en KPI i en kommun (alla år).
+
+        Returnerar en post per år i `values`-listan. Sortera själv på
+        `period`-fältet.
 
         Args:
             kpi_id: Ett eller flera KPI-ID:n (kommaseparerat).
