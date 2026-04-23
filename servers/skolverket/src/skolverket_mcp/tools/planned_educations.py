@@ -33,11 +33,18 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Sök skolenheter med filtrering och geografisk sökning.
 
+        Returnerar `{body: {_embedded: {listedSchoolUnits: [{schoolUnitCode,
+        name, ...}]}, page: {totalElements, number, size}}}`.
+
         Args:
             name: Sökterm för skolans namn.
-            type_of_schooling: Skolform (t.ex. 'COMPULSORY', 'UPPER_SECONDARY').
-            principal_organizer_type: Huvudmannatyp ('MUNICIPAL', 'INDEPENDENT').
-            geographical_area_code: Geografisk områdeskod (län/kommun).
+            type_of_schooling: Skolform, lowercase (t.ex. 'gr', 'fsk', 'gy',
+                'gyan', 'vuxgy', 'vuxgyan', 'vuxgr', 'vuxgran').
+            principal_organizer_type: Huvudmannatyp. Värden: 'KOMMUNAL',
+                'ENSKILD' (svenska, stora bokstäver). OBS: inte
+                MUNICIPAL/INDEPENDENT.
+            geographical_area_code: Kommun- eller länskod (t.ex. '1466'
+                Herrljunga, '1440' Ale). Se `list_geographical_areas`.
             school_years: Årskurser.
             latitude: Latitud för geografisk sökning.
             longitude: Longitud för geografisk sökning.
@@ -81,18 +88,24 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Sök gymnasiala utbildningstillfällen.
 
+        Returnerar `{body: {_embedded: {educationEvents: [{id, schoolUnitCode,
+        schoolUnitName, studyPathCode, studyPathName, startDate, endDate,
+        typeOfSchooling, ...}]}, page: {totalElements}}}`.
+
         Args:
-            name: Sökterm för utbildningsnamn.
-            study_path_code: Studievägskod.
-            principal_organizer_type: Huvudmannatyp ('MUNICIPAL', 'INDEPENDENT').
+            name: Sökterm för skolenhetens namn.
+            study_path_code: Studievägskod (t.ex. 'TE', 'NA', 'IMVEEG').
+            principal_organizer_type: Huvudmannatyp: 'KOMMUNAL' eller
+                'ENSKILD' (svenska, stora bokstäver).
             school_orientation: Skolorientering/inriktning.
-            geographical_area_code: Geografisk områdeskod.
-            type_of_schooling: Skolform.
+            geographical_area_code: Kommun- eller länskod.
+            type_of_schooling: Skolform: 'gy' (gymnasieskolan) eller 'gyan'
+                (anpassad gymnasieskolan). Endast gymnasial.
             latitude: Latitud för geografisk sökning.
             longitude: Longitud för geografisk sökning.
             distance: Avstånd i km.
-            sort: Sortering.
-            page: Sidnummer.
+            sort: Sortering (default 'relevance,desc').
+            page: Sidnummer (börjar från 0).
             size: Antal per sida.
         """
         client = _get_client(ctx)
@@ -132,19 +145,28 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Sök vuxenutbildningstillfällen.
 
+        Returnerar `{body: {_embedded: {listedAdultEducationEvents:
+        [{educationEventId, titleSv, providerName, typeOfSchool, municipality,
+        semesterStartFrom, distance, ...}]}, page: {totalElements}}}`.
+        Använd `educationEventId` för `get_adult_education_event`.
+
         Args:
             search_term: Fritext-sökning.
-            town: Ort.
-            type_of_school: Skoltyp.
-            geographical_area_code: Geografisk områdeskod.
+            town: Ort/studieort, kommaseparerad för flera (ex. 'Solna,Göteborg').
+            type_of_school: Utbildningsform: 'coursebasic' (grundläggande
+                kurs), 'courseadvanced' (gymnasial kurs), 'programbasic',
+                'programadvanced', 'forutbildning', 'yh'.
+            geographical_area_code: Kommun- eller länskod.
             instruction_languages: Undervisningsspråk.
-            pace_of_study: Studietakt.
-            semester_start_from: Terminsstart från (YYYY-MM-DD).
+            pace_of_study: Studietakt (t.ex. '25', '50', '100', '0-25',
+                '25-75').
+            semester_start_from: Terminsstart (ex.
+                '2020-01-01TO2020-05-31,2020-08-01TO2020-12-31').
             county: Län.
-            municipality: Kommun.
+            municipality: Kommun(er).
             distance: Distansutbildning (true/false).
-            sort: Sortering.
-            page: Sidnummer.
+            sort: Sortering (t.ex. 'titleSv:asc', 'typeOfSchool:desc').
+            page: Sidnummer (börjar från 0).
             size: Antal per sida.
         """
         client = _get_client(ctx)
@@ -177,11 +199,15 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta antal matchande vuxenutbildningstillfällen.
 
+        Returnerar `{body: <antal>}` med antalsvärdet som heltal. Användbart
+        för att kontrollera sökningens storlek innan full listning.
+
         Args:
             search_term: Fritext-sökning.
             town: Ort.
-            type_of_school: Skoltyp.
-            geographical_area_code: Geografisk områdeskod.
+            type_of_school: 'coursebasic', 'courseadvanced', 'programbasic',
+                'programadvanced', 'forutbildning', 'yh'.
+            geographical_area_code: Kommun- eller länskod.
             county: Län.
             municipality: Kommun.
             distance: Distansutbildning (true/false).
@@ -202,7 +228,8 @@ def register(mcp: FastMCP) -> None:
         """Hämta ett specifikt vuxenutbildningstillfälle.
 
         Args:
-            event_id: Utbildningstillfällets ID.
+            event_id: Utbildningstillfällets ID (fältet `educationEventId`
+                från `search_adult_education`, t.ex. 'e.uoh.uu.hsv2m.p5655').
         """
         client = _get_client(ctx)
         return await client.get_adult_education_event(event_id)
@@ -219,15 +246,31 @@ def register(mcp: FastMCP) -> None:
     async def get_admission_stats(
         ctx: Context,
         school_unit_code: str,
-        program_code: str,
+        study_path_code: str,
+        type_of_schooling: str = "gy",
     ) -> dict[str, Any]:
         """Hämta antagningspoäng och elevstatistik för ett gymnasieprogram på en skola.
 
+        Returnerar `{body: [{schoolUnitCode, studyPathCode,
+        admissionPointsMin, admissionPointsAverage, studentsInProgram,
+        studentsInSemester, typeOfSchooling, ...}]}`. Fält kan vara null om
+        statistik saknas för kombinationen (för ny/liten utbildning).
+
         Args:
-            school_unit_code: Skolenhetskod.
-            program_code: Programkod.
+            school_unit_code: Skolenhetskod (8 siffror, t.ex. '18451445').
+            study_path_code: Studievägs-/programkod (t.ex. 'TE', 'NA',
+                'IMVEEG'). Hämtas från `search_education_events` fältet
+                `studyPathCode`.
+            type_of_schooling: Skolform: 'gy' (gymnasieskolan) eller 'gyan'
+                (anpassad gymnasieskolan).
         """
         client = _get_client(ctx)
         return await client.get_school_unit_secondary_stats(
-            [{"schoolUnitCode": school_unit_code, "programCode": program_code}]
+            [
+                {
+                    "schoolUnitCode": school_unit_code,
+                    "studyPathCode": study_path_code,
+                    "typeOfSchooling": type_of_schooling,
+                }
+            ]
         )

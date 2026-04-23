@@ -25,9 +25,12 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta lista med ämnen från Skolverket.
 
+        Returnerar `{subjects: [{code, name, schoolTypes, typeOfSyllabus, version, ...}], totalElements}`.
+
         Args:
-            school_type: Filtrera på skoltyp (t.ex. 'GR', 'GY', 'VUXGY').
-            type_of_syllabus: Typ av kursplan ('ALL', 'COURSE_SYLLABUS', 'SUBJECT_SYLLABUS').
+            school_type: Filtrera på skoltyp (t.ex. 'GR', 'GRAN', 'GY', 'GYAN',
+                'VUX', 'VUXGY', 'VUXSFI'). Se `list_school_types` för alla.
+            type_of_syllabus: 'ALL', 'COURSE_SYLLABUS', 'SUBJECT_SYLLABUS'.
             date: Sökdatum (YYYY-MM-DD). Standard: senaste gällande.
         """
         client = _get_client(ctx)
@@ -46,7 +49,10 @@ def register(mcp: FastMCP) -> None:
         """Hämta ett specifikt ämne med ämneskod.
 
         Args:
-            code: Ämneskod (t.ex. 'GRNMAT', 'GRNENG').
+            code: Ämneskod. Formatet är prefix efter skolform, t.ex.
+                'GRGRBIL01' (Bild, grundskola), 'GRGRSVE01' (Svenska, GR),
+                'GRGRANMAT01' (anpassad grundskola), 'GRNSVA'
+                (vuxenutbildning). Hämta giltiga koder via `list_subjects`.
             date: Sökdatum (YYYY-MM-DD).
         """
         client = _get_client(ctx)
@@ -72,8 +78,10 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta lista med kurser från Skolverket.
 
+        Returnerar `{courses: [{code, name, schoolTypes, ...}], totalElements}`.
+
         Args:
-            school_type: Filtrera på skoltyp (t.ex. 'GY', 'VUXGY').
+            school_type: Filtrera på skoltyp (t.ex. 'GY', 'GYAN', 'VUXGY').
             date: Sökdatum (YYYY-MM-DD).
         """
         client = _get_client(ctx)
@@ -88,7 +96,8 @@ def register(mcp: FastMCP) -> None:
         """Hämta en specifik kurs med kurskod.
 
         Args:
-            code: Kurskod (t.ex. 'MATMAT01a').
+            code: Kurskod, format `<ÄMNE><NIVÅ>` (t.ex. 'MATMAT01a',
+                'SVESVE01', 'ENGENG06'). Hämta giltiga via `list_courses`.
             date: Sökdatum (YYYY-MM-DD).
         """
         client = _get_client(ctx)
@@ -115,8 +124,10 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta lista med program och vidareutbildningar.
 
+        Returnerar `{programs: [{code, name, ...}], totalElements}`.
+
         Args:
-            school_type: Filtrera på skoltyp.
+            school_type: Filtrera på skoltyp (t.ex. 'GY', 'GYAN').
             date: Sökdatum (YYYY-MM-DD).
             type_of_study_path: Typ av studieväg ('ALL', 'PROGRAM', 'FURTHER_EDUCATION').
         """
@@ -136,7 +147,10 @@ def register(mcp: FastMCP) -> None:
         """Hämta ett specifikt program med programkod.
 
         Args:
-            code: Programkod (t.ex. 'TE', 'NA').
+            code: Programkod (t.ex. 'TE' Teknikprogrammet, 'NA'
+                Naturvetenskap, 'BA' Bygg och anläggning, 'EE' El och
+                energi). Introduktionsprogram har längre koder t.ex.
+                'IMVEEG'.
             date: Sökdatum (YYYY-MM-DD).
         """
         client = _get_client(ctx)

@@ -27,9 +27,14 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta skolenheter från Skolenhetsregistret med filtrering.
 
+        Returnerar `{data: {type: 'schoolunit', attributes: [{schoolUnitCode,
+        name, status, ...}]}}`. Iterera över `data.attributes` och plocka
+        `schoolUnitCode` för vidare anrop.
+
         Args:
             school_type: Skolformer (t.ex. ['GR', 'GY', 'FKLASS', 'FTH', 'VUX']).
-            status: Status (['AKTIV', 'VILANDE', 'UPPHÖRT', 'PLANERAD']).
+            status: Status (['AKTIV', 'VILANDE', 'UPPHORT', 'PLANERAD']).
+                OBS: 'UPPHORT' utan Ö.
             municipality_code: Kommunkoder (t.ex. ['1466'] för Herrljunga).
             organization_number: Organisationsnummer (10 siffror).
             meta_modified_after: Poster ändrade efter datum (YYYY-MM-DD).
@@ -51,6 +56,10 @@ def register(mcp: FastMCP) -> None:
     ) -> dict[str, Any]:
         """Hämta detaljerad information om en skolenhet (adress, kontakt, rektor, skolformer).
 
+        Returnerar `{data: {type: 'schoolunit', attributes: {displayName, status,
+        url, email, phoneNumber, headMaster, address, schoolTypes, ...}}}`.
+        För get-anrop är `attributes` ett objekt (inte lista).
+
         Args:
             code: Skolenhetskod (8 siffror).
             search_date: Historisk sökning (YYYY-MM-DD).
@@ -67,6 +76,9 @@ def register(mcp: FastMCP) -> None:
         meta_modified_after: str | None = None,
     ) -> dict[str, Any]:
         """Hämta huvudmän (kommuner, regioner, enskilda etc.) från Skolenhetsregistret.
+
+        Returnerar `{data: {type: 'organizer', attributes: [{organizationNumber,
+        displayName, organizerType, ...}]}}`.
 
         Args:
             organizer_type: Typ (['KOMMUN', 'REGION', 'STAT', 'ENSKILD']).

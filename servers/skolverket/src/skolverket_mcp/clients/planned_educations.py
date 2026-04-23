@@ -23,9 +23,26 @@ class PlannedEducationsClient:
     async def close(self) -> None:
         await self._client.aclose()
 
-    async def _get(self, path: str, **params: Any) -> dict[str, Any]:
+    async def _get(
+        self,
+        path: str,
+        accept: str | None = None,
+        drop_accept: bool = False,
+        **params: Any,
+    ) -> dict[str, Any]:
         params = {k: v for k, v in params.items() if v is not None}
-        resp = await self._client.get(path, params=params)
+        if drop_accept:
+            # Bygg request och ta bort default-Accept (vissa endpoints svarar
+            # 406 på v3 HAL-headern)
+            request = self._client.build_request("GET", path, params=params)
+            del request.headers["accept"]
+            resp = await self._client.send(request)
+        elif accept:
+            resp = await self._client.get(
+                path, params=params, headers={"Accept": accept}
+            )
+        else:
+            resp = await self._client.get(path, params=params)
         resp.raise_for_status()
         return resp.json()
 
@@ -172,8 +189,10 @@ class PlannedEducationsClient:
         distance: bool | None = None,
     ) -> dict[str, Any]:
         """Hämta antal matchande vuxenutbildningstillfällen."""
+        # Endpoint stöder inte v3 HAL Accept-header - ta bort default-headern
         return await self._get(
             "/adult-education-events-count",
+            drop_accept=True,
             town=town,
             searchTerm=search_term,
             typeOfSchool=type_of_school,
@@ -192,7 +211,11 @@ class PlannedEducationsClient:
 
     async def list_adult_education_areas(self) -> dict[str, Any]:
         """Hämta utbildningsområden och inriktningar för vuxenutbildning."""
-        return await self._get("/adult-education-events/areas")
+        # Endpoint stöder inte v3 HAL Accept-header - ta bort default-headern
+        return await self._get(
+            "/adult-education-events/areas",
+            drop_accept=True,
+        )
 
     # --- Antagningspoäng ---
 
@@ -202,6 +225,7 @@ class PlannedEducationsClient:
         """Hämta antagningspoäng och elevstatistik för gymnasieprogram.
 
         Args:
-            school_unit_programs: Lista med objekt som har 'schoolUnitCode' och 'programCode'.
+            school_unit_programs: Lista med objekt som har 'schoolUnitCode',
+                'studyPathCode' och valfritt 'typeOfSchooling' (t.ex. 'gy').
         """
         return await self._post("/school-unit-secondary", json=school_unit_programs)
