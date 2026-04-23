@@ -5,3 +5,4 @@ windows:
   - kolada: uv run --package kolada kolada
   - skolverket: uv run --package skolverket skolverket
   - time: uv run --package time time
+  - scb: uv run --package scb scb
