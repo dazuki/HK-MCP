@@ -1,5 +1,5 @@
 name: mcp-start
-root: ~/python-projects/HK-MCP/
+root: ./
 
 windows:
   - kolada: uv run --package kolada kolada
