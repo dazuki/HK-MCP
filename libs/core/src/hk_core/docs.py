@@ -119,14 +119,15 @@ def _render_schema(schema: dict[str, Any]) -> str:
 
 
 def _render_instructions(instructions: str) -> str:
-    """Rendera systemprompten som en tydligt märkt notisruta."""
+    """Rendera systemprompten som en utfällbar ruta (stängd som default)."""
     if not instructions.strip():
         return ""
     return (
-        "<article class='message'>"
-        "<div class='message-header'>"
-        "<p>Instruktioner till AI-assistenten</p>"
-        "</div>"
+        "<details class='message hk-instructions'>"
+        "<summary class='message-header'>"
+        "<span>Instruktioner till AI-assistenten</span>"
+        "<span class='hk-instructions-hint is-size-7'>klicka för att visa</span>"
+        "</summary>"
         "<div class='message-body'>"
         "<p class='is-size-7 has-text-grey mb-2'>"
         "Följande systemprompt skickas till AI-modellen när den ansluter till "
@@ -134,7 +135,7 @@ def _render_instructions(instructions: str) -> str:
         "</p>"
         f"<div class='content'>{instructions}</div>"
         "</div>"
-        "</article>"
+        "</details>"
     )
 
 
@@ -220,6 +221,27 @@ def _render_html(data: dict[str, Any]) -> str:
   .menu {{ position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); overflow-y: auto; }}
   .menu-list code {{ font-size: 0.8rem; }}
   .theme-switcher {{ position: fixed; top: 1rem; right: 1rem; z-index: 30; }}
+
+  /* Utfällbar systempromptruta - native <details>-element */
+  details.hk-instructions {{ padding: 0; }}
+  details.hk-instructions > summary {{
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }}
+  details.hk-instructions > summary::-webkit-details-marker {{ display: none; }}
+  details.hk-instructions > summary::before {{
+    content: "\\25B6";
+    display: inline-block;
+    font-size: 0.75em;
+    transition: transform 0.15s ease;
+  }}
+  details.hk-instructions[open] > summary::before {{ transform: rotate(90deg); }}
+  details.hk-instructions > summary > span:first-of-type {{ flex: 1; }}
+  .hk-instructions-hint {{ opacity: 0.75; font-weight: normal; }}
+  details.hk-instructions[open] .hk-instructions-hint {{ display: none; }}
 
   /* is-light-varianter anpassas för mörkt tema - Bulma flippar dem inte själv */
   .hk-dark .tag.is-light,
