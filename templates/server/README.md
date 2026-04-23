@@ -4,9 +4,14 @@ Kopiera denna mapp till `servers/<namn>/` och ersätt följande identifierare:
 
 | Platshållare | Byt ut till |
 |---|---|
-| `hk-example` (paketnamn i `pyproject.toml`) | `<namn>` eller `hk-<namn>` |
-| `hk_example` (Python-modul) | modulnamn med understreck |
-| `"HK Exempel"` (server.py) | serverns visningsnamn |
+| `hk-example` (paketnamn + `[project.scripts]`-nyckel i `pyproject.toml`) | `<namn>` eller `hk-<namn>` |
+| `hk_example` (Python-modul, `src/`-katalog + `packages`-post) | modulnamn med understreck |
+| `"HK Exempel"` (server.py, `name=`-argument) | serverns visningsnamn |
+
+**Namnkonvention**: prefix `hk-` endast för servrar specifika för
+Herrljunga kommun. Generella servrar (t.ex. externa API:er som
+Skolverket, Kolada) namnges utan prefix. En MCP-server per extern
+tjänst - samla alla API:er från samma källa.
 
 ## Steg
 
@@ -19,7 +24,7 @@ cd servers/<namn>
 rm README.md
 cp ../../templates/server/mcp-config.toml.example mcp-config.toml  # anpassa
 uv sync
-uv run <namn>
+uv run <namn>   # namnet = [project.scripts]-nyckeln i pyproject.toml
 ```
 
 `mcp-config.toml.example` behålls endast i `templates/server/` -
