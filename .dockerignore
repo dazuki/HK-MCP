@@ -1,0 +1,25 @@
+.git
+.gitignore
+.venv
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+.vscode
+.idea
+
+# Lokala configfiler - ska INTE med in i images.
+# Konfiguration sker via HK_*-miljövariabler i compose.
+settings.toml
+**/mcp-config.toml
+
+# Docs, utveckling
+README.md
+CLAUDE.md
+.claude
+templates/
+docker-compose*.yml
+Dockerfile
+.dockerignore
