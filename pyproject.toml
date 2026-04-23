@@ -20,4 +20,5 @@ extraPaths = [
     "servers/skolverket/src",
     "servers/kolada/src",
     "servers/time/src",
+    "servers/scb/src",
 ]
