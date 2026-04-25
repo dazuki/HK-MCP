@@ -41,6 +41,7 @@ services:
     ports: ['3070:8000']
     environment:
       <<: *env
+      HK_ALLOWED_ORIGINS: ${SKOLVERKET_ALLOWED_ORIGINS:-["*"]}
       HK_AUTH_TOKENS: ${SKOLVERKET_AUTH_TOKENS}
     healthcheck: *healthcheck
 
@@ -50,6 +51,7 @@ services:
     ports: ['3071:8000']
     environment:
       <<: *env
+      HK_ALLOWED_ORIGINS: ${KOLADA_ALLOWED_ORIGINS:-["*"]}
       HK_AUTH_TOKENS: ${KOLADA_AUTH_TOKENS}
     healthcheck: *healthcheck
 
@@ -59,6 +61,7 @@ services:
     ports: ['3072:8000']
     environment:
       <<: *env
+      HK_ALLOWED_ORIGINS: ${TIME_ALLOWED_ORIGINS:-["*"]}
       HK_AUTH_TOKENS: ${TIME_AUTH_TOKENS}
     healthcheck: *healthcheck
 
@@ -68,5 +71,6 @@ services:
     ports: ['3073:8000']
     environment:
       <<: *env
+      HK_ALLOWED_ORIGINS: ${SCB_ALLOWED_ORIGINS:-["*"]}
       HK_AUTH_TOKENS: ${SCB_AUTH_TOKENS}
     healthcheck: *healthcheck

@@ -16,7 +16,6 @@
 x-common-env: &common-env
   HK_LOG_LEVEL: INFO
   HK_ENVIRONMENT: production
-  HK_ALLOWED_ORIGINS: '["*"]'
   # IP för reverse proxy som skickar X-Forwarded-*-headers. Justera efter
   # proxyns nät (t.ex. docker bridge eller fysisk hosts IP).
   HK_FORWARDED_ALLOW_IPS: '172.16.0.0/12'
@@ -54,6 +53,7 @@ services:
       # Lägg till din reverse proxy-domän här vid publik exponering,
       # t.ex. "skolverket.mcp.example.org". DNS rebinding-skydd.
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
+      HK_ALLOWED_ORIGINS: '["*"]'
       HK_AUTH_TOKENS: ${SKOLVERKET_AUTH_TOKENS:-[]}
     healthcheck: *common-healthcheck
 
@@ -71,6 +71,7 @@ services:
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
+      HK_ALLOWED_ORIGINS: '["*"]'
       HK_AUTH_TOKENS: ${KOLADA_AUTH_TOKENS:-[]}
     healthcheck: *common-healthcheck
 
@@ -88,6 +89,7 @@ services:
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
+      HK_ALLOWED_ORIGINS: '["*"]'
       HK_AUTH_TOKENS: ${TIME_AUTH_TOKENS:-[]}
     healthcheck: *common-healthcheck
 
@@ -105,5 +107,6 @@ services:
     environment:
       <<: *common-env
       HK_ALLOWED_HOSTS: '["localhost","127.0.0.1"]'
+      HK_ALLOWED_ORIGINS: '["*"]'
       HK_AUTH_TOKENS: ${SCB_AUTH_TOKENS:-[]}
     healthcheck: *common-healthcheck
